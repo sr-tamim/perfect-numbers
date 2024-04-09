@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unistd.h> // For sleep function
 #include <limits>   // For numeric_limits
+#include <cmath>    // For pow function
 using namespace std;
 
 void explainThisProgram()
@@ -11,32 +12,42 @@ void explainThisProgram()
          << endl;
 }
 
-bool isPerfectNumber(unsigned long long number)
+bool isPrime(unsigned long long n)
 {
-    unsigned long long sum = 0;
-    for (unsigned long long i = 1; i <= number / 2; i++)
+    if (n <= 1)
+        return false;
+    if (n <= 3)
+        return true;
+    if (n % 2 == 0 || n % 3 == 0)
+        return false;
+    for (unsigned long long i = 5; i * i <= n; i += 6)
     {
-        if (number % i == 0)
-        {
-            sum += i;
-        }
+        if (n % i == 0 || n % (i + 2) == 0)
+            return false;
     }
-    return sum == number;
+    return true;
 }
 
 void findPerfectNumbers(unsigned long long limit)
 {
-    // if limit is -1 then it will run forever
-    for (unsigned long long i = 1; i <= limit; i++)
+    for (unsigned long long p = 2; true; p++)
     {
-        cout << "Finding..." << i;
+        unsigned long long mp = pow(2, p) - 1;
+        cout << "Finding..." << mp;
         cout.flush();
         cout << "\r";
         cout.flush();
-        usleep(100);
-        if (isPerfectNumber(i))
+        usleep(100000);
+        // check if the calculation will overflow
+        if (mp > limit / pow(2, p - 1))
         {
-            cout << i << " is a perfect number" << endl;
+            cout << "The limit is reached. Last Mersenne prime is " << mp << endl;
+            break;
+        }
+        if (isPrime(mp))
+        {
+            unsigned long long perfectNumber = pow(2, p - 1) * mp;
+            cout << perfectNumber << " is a perfect number" << endl;
         }
     }
 }
@@ -50,17 +61,13 @@ int main()
 {
     explainThisProgram();
 
-    unsigned long long limit;
-    cout << "Enter the limit: (Enter -1 to run forever)" << endl;
-    cin >> limit;
-    if (limit == -1)
-        limit = numeric_limits<unsigned long long>::max();
+    unsigned long long limit = numeric_limits<unsigned long long>::max();
 
     // Clear the screen
     clearScreen();
     explainThisProgram();
 
-    cout << "Looking for perfect numbers up to ";
+    cout << "Your system can handle up to ";
     cout << limit << endl;
     cout << "Press Ctrl + C to stop" << endl
          << endl;
